@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ANANYA CHOUHAN — Mechanical Design Engineer × Creative Technologist</title>
+<meta name="description" content="Portfolio of Ananya Chouhan — Mechanical Design, CAD, Automotive Concepts, Ergonomics, and Creative Engineering.">
+<meta name="theme-color" content="#05070B">
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<!-- GSAP & Lenis Smooth Scroll CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.19/bundled/lenis.min.js"></script>
+
+<style>
+  :root {
+    /* AVTR & Porsche Concept Palette */
+    --bg-dark: #05070B;
+    --bg-midnight: #0B0E14;
+    --surface-glass: rgba(255, 255, 255, 0.03);
+    --surface-glass-hover: rgba(255, 255, 255, 0.06);
+    --surface-border: rgba(255, 255, 255, 0.08);
+    --surface-border-hover: rgba(255, 77, 109, 0.5);
+    
+    --avtr-red: #FF2A54;
+    --avtr-coral: #FF5E62;
+    --avtr-glow: rgba(255, 42, 84, 0.35);
+    --porsche-gold: #FFBE5C;
+    --cad-cyan: rgba(0, 206, 201, 0.4);
+    
+    --text-primary: #F5F5F7;
+    --text-muted: #9496A1;
+    --font-sans: 'Plus Jakarta Sans', sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+    
+    --radius-premium: 30px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background-color: var(--bg-dark); }
+
+  body {
+    background-color: var(--bg-dark);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    overflow-x: hidden;
+    line-height: 1.6;
+    cursor: none;
+  }
+
+  /* Custom Precision Cursor */
+  #cursor-dot, #cursor-ring {
+    pointer-events: none;
+    position: fixed;
+    top: 0; left: 0;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    z-index: 9999;
+    transition: transform 0.08s ease-out, width 0.3s ease, height 0.3s ease, background 0.3s ease, border-color 0.3s ease;
+  }
+  #cursor-dot {
+    width: 6px; height: 6px;
+    background: var(--avtr-coral);
+    box-shadow: 0 0 2px var(--avtr-red);
+  }
+  #cursor-ring {
+    width: 38px; height: 38px;
+    border: 1px solid rgba(255, 94, 98, 0.15);
+  }
+  body.hovering #cursor-ring {
+    width: 64px; height: 64px;
+    background: rgba(255, 42, 84, 0.03);
+    border-color: var(--avtr-coral);
+  }
+
+  /* Volumetric Ambient Lighting & CAD Blueprint Mesh */
+  #bg-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    z-index: 0;
+    pointer-events: none;
+    background: radial-gradient(circle at 50% 50%, #0d0d11 0%, #05070B 100%);
+  }
+
+  /* Atmospheric Volumetric Bloom Layers */
+  .ambient-bloom {
+    position: fixed;
+    width: 650px; height: 650px;
+    border-radius: 50%;
+    filter: blur(140px);
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.45;
+    will-change: transform;
+    animation: floatBloom 18s ease-in-out infinite alternate;
+  }
+  .bloom-1 { top: -10%; left: -10%; background: radial-gradient(circle, rgba(255, 42, 84, 0.35), transparent 70%); }
+  .bloom-2 { bottom: -20%; right: -10%; background: radial-gradient(circle, rgba(123, 97, 255, 0.3), transparent 70%); }
+  .bloom-3 { top: 40%; right: -15%; background: radial-gradient(circle, rgba(255, 190, 92, 0.25), transparent 70%); }
+
+  @keyframes floatBloom {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(90px, 60px) scale(1.18); }
+  }
+
+  /* Loader System */
+  #loader {
+    position: fixed; inset: 0;
+    background: var(--bg-dark);
+    z-index: 10000;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    transition: opacity 0.8s ease, visibility 0.8s ease;
+  }
+  .loader-svg { width: 120px; height: 120px; margin-bottom: 24px; }
+  .loader-path {
+    stroke: var(--avtr-coral);
+    stroke-width: 1.5;
+    fill: none;
+    stroke-dasharray: 300;
+    stroke-dashoffset: 300;
+    animation: drawBlueprint 2s ease forwards infinite;
+  }
+  @keyframes drawBlueprint {
+    0% { stroke-dashoffset: 300; }
+    50% { stroke-dashoffset: 0; }
+    100% { stroke-dashoffset: -300; }
+  }
+  .loader-text {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    color: var(--avtr-coral);
+    text-transform: uppercase;
+  }
+  .loader-bar {
+    width: 220px; height: 2px;
+    background: rgba(255,255,255,0.08);
+    margin-top: 16px; border-radius: 2px; overflow: hidden;
+  }
+  .loader-fill {
+    width: 0%; height: 100%;
+    background: linear-gradient(90deg, var(--avtr-red), var(--avtr-coral));
+    transition: width 0.1s linear;
+  }
+
+  section { position: relative; z-index: 1; }
+
+  /* Navigation Bar (Glass Floating Panel) */
+  .nav-wrap {
+    position: fixed; top: 24px; left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    width: 90%; max-width: 1100px;
+    transition: transform 0.4s ease, opacity 0.4s ease;
+  }
+  .nav-wrap.nav-hidden { transform: translate(-50%, -100px); opacity: 0; }
+  
+  .nav {
+    background: rgba(11, 14, 20, 0.65);
+    backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px);
+    border: 1px solid var(--surface-border);
+    border-radius: 100px;
+    padding: 12px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+  }
+  .nav-logo {
+    font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.15em;
+    text-decoration: none; color: var(--text-primary); font-weight: 600;
+  }
+  .nav-logo span { color: var(--avtr-coral); }
+  .nav-links { display: flex; gap: 32px; list-style: none; }
+  .nav-links a {
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em;
+    color: var(--text-muted); text-decoration: none; text-transform: uppercase;
+    transition: color 0.3s ease; position: relative;
+  }
+  .nav-links a:hover, .nav-links a.active { color: var(--text-primary); }
+  .nav-links a.active::after {
+    content: ''; position: absolute; bottom: -4px; left: 0; width: 100%; height: 2px;
+    background: var(--avtr-coral); border-radius: 2px; box-shadow: 0 0 8px var(--avtr-coral);
+  }
+
+  /* Hero Section */
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    align-items: center;
+    padding: 160px 8% 100px;
+    gap: 60px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .hero-content { max-width: 720px; }
+  
+  .eyebrow {
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.2em;
+    color: var(--avtr-coral); text-transform: uppercase;
+    display: flex; align-items: center; gap: 12px; margin-bottom: 24px;
+  }
+  .eyebrow::before { content: ''; width: 32px; height: 1px; background: var(--avtr-coral); }
+
+  /* Cinematic Red-to-Midnight Gradient Text */
+  .hero-title {
+    font-size: clamp(3.2rem, 5.8vw, 5.4rem);
+    font-weight: 800; line-height: 1.05; letter-spacing: -0.03em;
+    margin-bottom: 24px;
+    background: linear-gradient(135deg, #FFFFFF 0%, var(--avtr-coral) 50%, var(--avtr-red) 100%);
+    background-size: 200% 200%;
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradientShift 10s ease infinite;
+  }
+  @keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  .hero-sub {
+    font-size: 1.15rem; color: var(--text-muted); font-weight: 300;
+    max-width: 580px; margin-bottom: 44px; line-height: 1.7;
+  }
+
+  .hero-cta { display: flex; gap: 20px; flex-wrap: wrap; }
+
+  /* Magnetic Glass Buttons */
+  .btn {
+    padding: 16px 36px; font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.12em; text-transform: uppercase; text-decoration: none;
+    border-radius: 50px; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    cursor: pointer; border: none; position: relative; overflow: hidden;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--avtr-coral), var(--avtr-red));
+    color: #FFFFFF; font-weight: 600;
+    box-shadow: 0 10px 30px var(--avtr-glow);
+  }
+  .btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 18px 40px rgba(255, 42, 84, 0.5);
+  }
+
+  .btn-ghost {
+    background: var(--surface-glass); color: var(--text-primary);
+    border: 1px solid var(--surface-border); backdrop-filter: blur(16px);
+  }
+  .btn-ghost:hover {
+    border-color: var(--avtr-coral); color: var(--avtr-coral); transform: translateY(-3px);
+    box-shadow: 0 0 25px rgba(255, 94, 98, 0.2);
+  }
+
+  /* Hero Visual Orbit System & Blueprint HUD */
+  .hero-visual { position: relative; display: flex; justify-content: center; align-items: center; }
+  .orbit-system {
+    position: absolute; inset: -15%;
+    display: flex; justify-content: center; align-items: center; pointer-events: none;
+  }
+  .orbit {
+    position: absolute; border: 1px dashed rgba(255, 255, 255, 0.08);
+    border-radius: 50%; animation: rotateOrbit linear infinite;
+  }
+  .orbit:nth-child(1) { width: 380px; height: 380px; animation-duration: 30s; }
+  .orbit:nth-child(2) { width: 520px; height: 520px; animation-duration: 45s; animation-direction: reverse; }
+  
+  .orbit-node {
+    position: absolute; top: 50%; left: 100%; width: 8px; height: 8px; border-radius: 50%;
+    transform: translate(-50%, -50%); background: var(--avtr-coral); box-shadow: 0 0 15px var(--avtr-coral);
+  }
+
+  @keyframes rotateOrbit {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .profile-frame {
+    position: relative; z-index: 2; width: 100%; max-width: 400px; aspect-ratio: 1;
+    border-radius: var(--radius-premium); padding: 2px;
+    background: linear-gradient(135deg, rgba(255, 94, 98, 0.4), rgba(255, 42, 84, 0.1), rgba(0, 206, 201, 0.2));
+    box-shadow: 0 30px 80px rgba(0,0,0,0.8);
+  }
+  .profile-frame-inner {
+    width: 100%; height: 100%; border-radius: calc(var(--radius-premium) - 2px);
+    overflow: hidden; background: var(--bg-midnight);
+  }
+  .profile-frame img {
+    width: 100%; height: 100%; object-fit: cover;
+    filter: saturate(1.1) contrast(1.05); transition: transform 0.6s ease;
+  }
+  .profile-frame:hover img { transform: scale(1.05); }
+
+  /* Sections & Apple Spacing */
+  .section { padding: 140px 8%; max-width: 1400px; margin: 0 auto; }
+  
+  .callout {
+    display: inline-flex; align-items: center; gap: 12px;
+    font-family: var(--font-mono); font-size: 11px; color: var(--avtr-coral);
+    margin-bottom: 24px; text-transform: uppercase; letter-spacing: 0.15em;
+  }
+  .callout .num {
+    width: 26px; height: 26px; border: 1px solid var(--avtr-coral); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; font-size: 10px;
+  }
+  .callout .lead { width: 32px; height: 1px; background: var(--avtr-coral); opacity: 0.4; }
+
+  .section-heading { font-size: clamp(2.2rem, 4vw, 3.4rem); font-weight: 700; margin-bottom: 16px; letter-spacing: -0.02em; }
+  .section-note { color: var(--text-muted); font-size: 1.05rem; max-width: 640px; margin-bottom: 64px; font-weight: 300; }
+
+  /* Positioning Cards */
+  .positioning h2 {
+    font-size: clamp(1.8rem, 3.5vw, 2.8rem); font-weight: 600; line-height: 1.35;
+    max-width: 1000px; color: var(--text-primary); margin-bottom: 32px;
+  }
+  .positioning h2 strong { color: var(--avtr-coral); font-weight: 700; }
+  
+  .positioning-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; margin-top: 56px; }
+  
+  .philosophy-card {
+    background: var(--surface-glass); border: 1px solid var(--surface-border);
+    border-radius: var(--radius-premium); padding: 36px; backdrop-filter: blur(24px);
+    transition: transform 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+  }
+  .philosophy-card:hover {
+    transform: translateY(-6px); border-color: var(--avtr-coral);
+    box-shadow: 0 20px 40px rgba(255, 42, 84, 0.1);
+  }
+  .philosophy-card h3 { font-family: var(--font-mono); font-size: 0.95rem; color: var(--avtr-coral); margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.08em; }
+  .philosophy-card p { color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; }
+
+  /* Project Grid Cards */
+  .project-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 40px; }
+
+  .project-card {
+    position: relative; border-radius: var(--radius-premium); overflow: hidden;
+    background: var(--surface-glass); border: 1px solid var(--surface-border);
+    backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex; flex-direction: column;
+  }
+  .project-card:hover {
+    transform: translateY(-8px); border-color: var(--surface-border-hover);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7), 0 0 35px rgba(255, 42, 84, 0.15);
+  }
+
+  .project-image {
+    position: relative; aspect-ratio: 16/10; width: 100%; overflow: hidden;
+    background: rgba(255, 255, 255, 0.02);
+  }
+  .project-image img {
+    width: 100%; height: 100%; object-fit: cover;
+    transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .project-card:hover .project-image img { transform: scale(1.06); }
+  
+  .project-badge {
+    position: absolute; top: 20px; left: 20px; z-index: 2;
+    font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em;
+    padding: 6px 14px; border-radius: 50px; text-transform: uppercase;
+  }
+  .badge-engineering { background: rgba(255, 94, 98, 0.15); color: var(--avtr-coral); border: 1px solid var(--avtr-coral); }
+  .badge-concept { background: rgba(0, 206, 201, 0.15); color: #00CEC9; border: 1px solid #00CEC9; }
+
+  .project-body { padding: 40px; display: flex; flex-direction: column; flex: 1; }
+  .project-category { font-family: var(--font-mono); font-size: 11px; color: var(--avtr-coral); text-transform: uppercase; margin-bottom: 8px; }
+  .project-title { font-size: 1.65rem; font-weight: 700; margin-bottom: 12px; }
+  .project-desc { color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 24px; }
+  
+  .project-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; margin-bottom: 24px; }
+  .project-tag {
+    font-family: var(--font-mono); font-size: 10px; color: var(--text-primary);
+    padding: 6px 14px; background: rgba(255, 255, 255, 0.04); border-radius: 50px;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  
+  .project-result {
+    font-family: var(--font-mono); font-size: 11px; color: var(--avtr-coral);
+    border-top: 1px dashed var(--surface-border); padding-top: 18px; margin-bottom: 20px;
+  }
+  .project-case-btn {
+    font-family: var(--font-mono); font-size: 11px; color: var(--text-primary);
+    background: none; border: none; cursor: pointer; text-transform: uppercase;
+    letter-spacing: 0.1em; text-align: left; display: inline-flex; align-items: center; gap: 8px;
+    transition: color 0.3s ease;
+  }
+  .project-case-btn:hover { color: var(--avtr-coral); }
+
+  /* Skills Columns */
+  .skills-columns { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+
+  .skills-col {
+    background: var(--surface-glass); border: 1px solid var(--surface-border);
+    border-radius: var(--radius-premium); padding: 40px; backdrop-filter: blur(24px);
+    display: flex; flex-direction: column;
+  }
+  .skills-col h3 {
+    font-family: var(--font-mono); font-size: 1rem; color: var(--avtr-coral);
+    letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 32px;
+    padding-bottom: 12px; border-bottom: 1px solid var(--surface-border);
+  }
+
+  .skill-item { margin-bottom: 24px; }
+  .skill-item:last-child { margin-bottom: 0; }
+  .skill-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .skill-name { font-size: 0.95rem; font-weight: 500; }
+  
+  .skill-badge {
+    font-family: var(--font-mono); font-size: 9px; padding: 3px 8px; border-radius: 4px;
+    text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em;
+  }
+  .lvl-strong { background: rgba(255, 94, 98, 0.2); color: var(--avtr-coral); border: 1px solid var(--avtr-coral); }
+  .lvl-working { background: rgba(255, 190, 92, 0.15); color: var(--porsche-gold); border: 1px solid var(--porsche-gold); }
+  .lvl-intermediate { background: rgba(0, 206, 201, 0.15); color: #00CEC9; border: 1px solid #00CEC9; }
+  .lvl-basic { background: rgba(123, 97, 255, 0.2); color: #7B61FF; border: 1px solid #7B61FF; }
+
+  .skill-bar {
+    width: 100%; height: 5px; background: rgba(255, 255, 255, 0.06);
+    border-radius: 10px; overflow: hidden;
+  }
+  .skill-fill { height: 100%; border-radius: 10px; background: linear-gradient(90deg, var(--avtr-coral), var(--avtr-red)); }
+
+  /* Certifications Marquee */
+  .cert-marquee-wrap {
+    width: 100vw; position: relative; left: 50%; right: 50%;
+    margin-left: -50vw; margin-right: -50vw;
+    overflow: hidden; padding: 20px 0;
+  }
+  .cert-track { display: flex; gap: 24px; width: max-content; animation: marquee 35s linear infinite; }
+  .cert-track:hover { animation-play-state: paused; }
+
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  .cert-card {
+    width: 320px; background: var(--surface-glass);
+    border: 1px solid var(--surface-border); border-radius: var(--radius-premium);
+    padding: 32px; backdrop-filter: blur(24px); flex-shrink: 0;
+    transition: border-color 0.3s ease, transform 0.3s ease;
+  }
+  .cert-card:hover { border-color: var(--avtr-coral); transform: translateY(-4px); }
+  .cert-issuer { font-family: var(--font-mono); font-size: 11px; color: var(--avtr-coral); text-transform: uppercase; margin-bottom: 8px; }
+  .cert-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 12px; }
+  .cert-year { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); margin-bottom: 16px; }
+
+  /* Resume Section */
+  .resume-box {
+    background: var(--surface-glass); border: 1px solid var(--surface-border);
+    border-radius: var(--radius-premium); padding: 56px; backdrop-filter: blur(24px);
+    display: flex; justify-content: space-between; align-items: center; gap: 40px;
+    margin-bottom: 80px;
+  }
+  .resume-info h3 { font-size: 1.8rem; margin-bottom: 8px; }
+  .resume-info p { color: var(--text-muted); font-size: 1rem; max-width: 500px; }
+
+  /* Timeline */
+  .timeline { position: relative; border-left: 1px solid var(--surface-border); padding-left: 36px; margin-left: 16px; }
+  .timeline-item { position: relative; margin-bottom: 52px; }
+  .timeline-item:last-child { margin-bottom: 0; }
+  .timeline-dot {
+    position: absolute; left: -43px; top: 6px; width: 13px; height: 13px;
+    border-radius: 50%; background: var(--avtr-coral); box-shadow: 0 0 12px var(--avtr-coral);
+  }
+  .timeline-role { font-size: 1.35rem; font-weight: 700; }
+  .timeline-org { font-family: var(--font-mono); font-size: 12px; color: var(--avtr-coral); margin-bottom: 8px; text-transform: uppercase; }
+  .timeline-time { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); margin-bottom: 12px; }
+  .timeline-desc { color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; max-width: 700px; }
+
+  /* Contact Section */
+  .contact-box {
+    background: linear-gradient(135deg, rgba(255, 94, 98, 0.08), rgba(255, 42, 84, 0.03));
+    border: 1px solid var(--surface-border); border-radius: var(--radius-premium); padding: 70px;
+    backdrop-filter: blur(24px); text-align: center;
+  }
+  .contact-box h2 { font-size: clamp(2.2rem, 4.5vw, 3.5rem); font-weight: 800; margin-bottom: 16px; }
+  .contact-box p { color: var(--text-muted); font-size: 1.1rem; max-width: 600px; margin: 0 auto 40px; }
+  .contact-links { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
+
+  /* Footer */
+  .footer {
+    padding: 48px 8%; font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);
+    display: flex; justify-content: space-between; border-top: 1px solid var(--surface-border);
+    max-width: 1400px; margin: 0 auto;
+  }
+
+  /* Modal overlay */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(5, 7, 11, 0.92); backdrop-filter: blur(20px);
+    z-index: 20000; display: flex; align-items: center; justify-content: center; padding: 24px;
+    opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: auto; }
+  .modal-box {
+    background: #0B0E14; border: 1px solid var(--surface-border);
+    max-width: 720px; width: 100%; border-radius: var(--radius-premium); padding: 52px; position: relative;
+    max-height: 85vh; overflow-y: auto; transform: translateY(30px); transition: transform 0.4s ease;
+  }
+  .modal-overlay.open .modal-box { transform: translateY(0); }
+  .modal-close {
+    position: absolute; top: 24px; right: 24px; background: rgba(255,255,255,0.05);
+    border: 1px solid var(--surface-border); color: var(--text-muted); width: 36px; height: 36px;
+    border-radius: 50%; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  }
+  .modal-close:hover { color: var(--avtr-coral); border-color: var(--avtr-coral); }
+
+  /* Responsive Design */
+  @media (max-width: 1024px) {
+    .hero { grid-template-columns: 1fr; gap: 50px; text-align: center; padding-top: 160px; }
+    .eyebrow { justify-content: center; }
+    .hero-sub { margin-left: auto; margin-right: auto; }
+    .hero-cta { justify-content: center; }
+    .positioning-grid, .project-grid, .skills-columns { grid-template-columns: 1fr; }
+    .resume-box { flex-direction: column; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Custom Precision Cursor -->
+<div id="cursor-dot"></div>
+<div id="cursor-ring"></div>
+
+<!-- Atmospheric Volumetric Bloom Elements -->
+<div class="ambient-bloom bloom-1"></div>
+<div class="ambient-bloom bloom-2"></div>
+<div class="ambient-bloom bloom-3"></div>
+
+<!-- Background Canvas with Interactive Parallax Grid & Particles -->
+<canvas id="bg-canvas"></canvas>
+
+<!-- Loader -->
+<div id="loader">
+  <svg class="loader-svg" viewBox="0 0 100 100">
+    <polygon class="loader-path" points="50,5 90,25 90,75 50,95 10,75 10,25" />
+    <line class="loader-path" x1="50" y1="5" x2="50" y2="95" />
+    <line class="loader-path" x1="10" y1="25" x2="90" y2="75" />
+    <line class="loader-path" x1="10" y1="75" x2="90" y2="25" />
+  </svg>
+  <div class="loader-text">Initializing Precision Systems</div>
+  <div class="loader-bar"><div class="loader-fill" id="loader-fill"></div></div>
+</div>
+
+<!-- Header / Navigation -->
+<div class="nav-wrap" id="navbar">
+  <nav class="nav">
+    <a href="#" class="nav-logo">AC<span>_</span>STUDIO</a>
+    <ul class="nav-links">
+      <li><a href="#positioning">Positioning</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#certifications">Certifications</a></li>
+      <li><a href="#experience">Experience</a></li>
+      <li><a href="#contact">Connect</a></li>
+    </ul>
+  </nav>
+</div>
+
+<main>
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <p class="eyebrow" id="hero-eyebrow"></p>
+      <h1 class="hero-title" id="hero-name"></h1>
+      <p class="hero-sub" id="hero-sub"></p>
+      <div class="hero-cta">
+        <a href="#projects" class="btn btn-primary">View Selected Work</a>
+        <a href="resume15.pdf" download class="btn btn-ghost">Download Resume ↗</a>
+        <a href="resume.png" target="_blank" class="btn btn-ghost">View Resume ↗</a>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="orbit-system">
+        <div class="orbit"><div class="orbit-node"></div></div>
+        <div class="orbit"></div>
+      </div>
+      <div class="profile-frame">
+        <div class="profile-frame-inner">
+          <img src="profile.jpeg" alt="Ananya Chouhan" id="profile-img" onerror="this.src='https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80'">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Positioning Section -->
+  <section class="section positioning" id="positioning">
+    <div class="callout"><span class="num">1</span><span class="lead"></span>Positioning</div>
+    <h2>Engineering sets constraints. Design gives form. <strong>Visualization makes both legible.</strong></h2>
+    <p id="positioning-text" style="color: var(--text-muted); font-size: 1.1rem; max-width: 800px;"></p>
+    
+    <div class="positioning-grid">
+      <div class="philosophy-card">
+        <h3>Engineering Rigor</h3>
+        <p>Functional physics, tolerance definition, and load calculations ensure hardware performs flawlessly under stress.</p>
+      </div>
+      <div class="philosophy-card">
+        <h3>Industrial Design</h3>
+        <p>Human-centered biomechanics and ergonomic surfacing language communicating functionality through refined form.</p>
+      </div>
+      <div class="philosophy-card">
+        <h3>Visual Engineering</h3>
+        <p>Photorealistic 3D rendering and generative workflows bringing complex CAD assemblies into vivid, executive clarity.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Projects Section -->
+  <section class="section projects" id="projects">
+    <div class="callout"><span class="num">2</span><span class="lead"></span>Projects</div>
+    <h2 class="section-heading">Featured Engineering &amp; Concepts</h2>
+    <p class="section-note">Rigorous mechanical engineering case studies alongside exploratory automotive and 3D concept studies.</p>
+    <div class="project-grid" id="project-grid"></div>
+  </section>
+
+  <!-- Skills Section -->
+  <section class="section skills" id="skills">
+    <div class="callout"><span class="num">3</span><span class="lead"></span>Capabilities</div>
+    <h2 class="section-heading">Tech Stack &amp; Skill Matrix</h2>
+    <p class="section-note">Structured across core mechanical engineering, digital modeling, visualization, and computational toolsets.</p>
+    <div class="skills-columns" id="skills-grid"></div>
+  </section>
+
+  <!-- Certifications Section -->
+  <section class="section certifications" id="certifications">
+    <div class="callout"><span class="num">4</span><span class="lead"></span>Credentials</div>
+    <h2 class="section-heading">Continuous Mastery</h2>
+    <p class="section-note">Specialized credentials across CAD, computational modeling, AI, and industrial standards.</p>
+    
+    <div class="cert-marquee-wrap">
+      <div class="cert-track" id="cert-track"></div>
+    </div>
+  </section>
+
+  <!-- Resume Section -->
+  <section class="section resume" id="resume">
+    <div class="callout"><span class="num">5</span><span class="lead"></span>Curriculum Vitae</div>
+    <div class="resume-box">
+      <div class="resume-info">
+        <h3>Detailed Resume &amp; Technical Specs</h3>
+        <p>Explore full academic credentials, project technical specifications, and detailed internship achievements.</p>
+      </div>
+      <a href="resume15.pdf" target="_blank" download="Ananya_Chouhan_Resume.pdf" class="btn btn-primary">Download Resume ↗</a>
+    </div>
+  </section>
+
+  <!-- Experience & Education -->
+  <section class="section experience" id="experience">
+    <div class="callout"><span class="num">6</span><span class="lead"></span>Experience</div>
+    <h2 class="section-heading">Career Timeline</h2>
+    <p class="section-note">Practical industrial training, collaborative robotics engineering, and academic milestones.</p>
+    <div class="timeline" id="experience-timeline"></div>
+  </section>
+
+  <!-- Contact Section -->
+  <section class="section contact" id="contact">
+    <div class="contact-box">
+      <div class="callout" style="justify-content: center;"><span class="num">7</span><span class="lead"></span>Connect</div>
+      <h2>Let's build something exceptional.</h2>
+      <p>Open to internships, industrial collaborations, automotive design roles, and creative engineering opportunities.</p>
+      <div class="contact-links" id="contact-links"></div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <span id="footer-name"></span>
+  <span>Designed &amp; Engineered with Precision</span>
+</footer>
+
+<!-- Modal Overlay -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal-box">
+    <button class="modal-close" id="modal-close">&times;</button>
+    <h3 id="modal-title" style="font-size:2rem; margin-bottom:6px;"></h3>
+    <p class="modal-sub" id="modal-sub" style="font-family:var(--font-mono); font-size:12px; color:var(--avtr-coral); margin-bottom:32px; text-transform:uppercase;"></p>
+    
+    <div style="margin-bottom:24px;">
+      <h4 style="font-family:var(--font-mono); font-size:11px; color:var(--avtr-coral); text-transform:uppercase; margin-bottom:8px; letter-spacing:0.1em;">Problem Statement</h4>
+      <p id="modal-problem" style="color:var(--text-muted); font-size:0.98rem; line-height:1.6;"></p>
+    </div>
+    <div style="margin-bottom:24px;">
+      <h4 style="font-family:var(--font-mono); font-size:11px; color:var(--avtr-coral); text-transform:uppercase; margin-bottom:8px; letter-spacing:0.1em;">Research &amp; Constraints</h4>
+      <p id="modal-research" style="color:var(--text-muted); font-size:0.98rem; line-height:1.6;"></p>
+    </div>
+    <div style="margin-bottom:24px;">
+      <h4 style="font-family:var(--font-mono); font-size:11px; color:var(--avtr-coral); text-transform:uppercase; margin-bottom:8px; letter-spacing:0.1em;">Engineering Process &amp; Approach</h4>
+      <p id="modal-process" style="color:var(--text-muted); font-size:0.98rem; line-height:1.6;"></p>
+    </div>
+    <div>
+      <h4 style="font-family:var(--font-mono); font-size:11px; color:var(--avtr-coral); text-transform:uppercase; margin-bottom:8px; letter-spacing:0.1em;">Measurable Outcome &amp; Impact</h4>
+      <p id="modal-result" style="color:var(--text-muted); font-size:0.98rem; line-height:1.6;"></p>
+    </div>
+  </div>
+</div>
+
+<script>
+// LENIS SMOOTH SCROLL INITIALIZATION
+const lenis = new Lenis({
+  duration: 1.2,
+  easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+  smoothWheel: true,
+  smoothTouch: false
+});
+function raf(time) {
+  lenis.raf(time);
+  requestAnimationFrame(raf);
+}
+requestAnimationFrame(raf);
+
+// MASTER CONFIG DATA
+const CONFIG = {
+  name: "Ananya Chouhan",
+  eyebrow: "Mechanical Design Engineer ● Product Designer ● Creative Technologist",
+  heroSub: "Mechanical engineering student bridging structural physics, CAD design, ergonomics, automotive form language, and high-fidelity 3D visualization.",
+  positioning: {
+    text: "Positioned at the intersection of mechanical engineering precision and modern industrial design, I combine CAD modeling, biomechanical ergonomics, Blender surfacing, and AI-driven workflows to bring hardware concepts from drafting board to functional reality.",
+  },
+  projects: [
+    {
+      id: "plab-collaboration",
+      title: "PLAB Engineering Collaboration",
+      category: "Featured / Mechanical Systems",
+      type: "engineering",
+      image: "plabimage.jpeg",
+      description: "Digital Product Studio: Building Premium End-to-End Brand Ecosystems.",
+      tags: ["UI/UX Design","Prototyping","AdobeCreativeSuite","Designing","Product Development"],
+      result: "A launch-ready, agency-level digital ecosystem for fictional luxury brands, showcasing seamless integration of premium 3D design, full-stack engineering, and marketing strategy",
+      caseStudy: {
+        problem: "Most designers and developers work in isolated silos, which prevents them from showing how design, technology, and business strategy integrate in a real-world product launc",
+        research: "The project is strictly designed around a two-person multidisciplinary structure to test the limits of lean collaboration",
+        process: "The studio intentionally targets premium luxury categories to showcase extreme attention to detail, premium storytelling, and high-fidelity user experiences",
+        result: "Building a highly repeatable operational framework that can eventually evolve into an actual independent Creative Agency or a Startup Studio"
+      }
+    },
+    {
+      id: "ergonomic-workstation",
+      title: "Ergonomic Workstation Redesign",
+      category: "Engineering / Biomechanics",
+      type: "engineering",
+      image: "zenstation.png",
+      description: "Human-centered workstation redesign targeting musculoskeletal strain reduction during prolonged precision engineering tasks.",
+      tags: ["RULA Method","Biomechanics","Workspace Analysis","CAD Redesign"],
+      result: "RULA Score Improved from 6 → 4",
+      caseStudy: {
+        problem: "Users experienced upper-limb fatigue and unnatural reach zones leading to long-term ergonomic risk.",
+        research: "Conducted Rapid Upper Limb Assessment (RULA) and mapped biomechanical reach radii across operator demographics.",
+        process: "Re-engineered task surface geometry, repositioned control interfaces, and introduced adjustable modular support points.",
+        result: "Reduced overall postural risk score from 6 (High Risk) to 4 (Medium/Low Risk)."
+      }
+    },
+    {
+      id: "future-mobility",
+      title: "Future Mobility Surfacing Study",
+      category: "Automotive Concept / Design",
+      type: "concept",
+      image: "futuristic.jpeg",
+      description: "Exploratory electric vehicle form study focusing on aerodynamic drag minimization and futuristic surface continuity.",
+      tags: ["Automotive Design","Aerodynamic Surfacing","Concept Visuals","3D"],
+      result: "Class-A surface continuity visual study",
+      caseStudy: {
+        problem: "Creating an EV architecture concept that balances aerodynamic efficiency with striking visual brand identity.",
+        research: "Studied fluid dynamics boundary layers and historic aerodynamic speedtail profiles.",
+        process: "Modeled complex curvature continuity in CAD and Blender, refining light reflections across body panels.",
+        result: "Delivered a full 3D visual concept model ready for aerodynamic simulation testing."
+      }
+    },
+    {
+      id: "digital-motion",
+      title: "3D Motion & Material Exploration",
+      category: "Creative Technology / Visualization",
+      type: "concept",
+      image: "3dmodel.jpeg",
+      description: "High-fidelity Blender material shaders and procedural kinematics studies examining mechanical motion rendering.",
+      tags: ["Blender","Procedural Shaders","Kinematic Animation","Lighting"],
+      result: "Photorealistic rendering pipeline",
+      caseStudy: {
+        problem: "Standard CAD renders fail to convey emotional depth, texture, and real-world lighting behavior.",
+        research: "Investigated physical light refraction, metallic anodization properties, and camera depth-of-field.",
+        process: "Constructed custom node-based procedural shaders in Blender and keyframed complex mechanical gear interactions.",
+        result: "Produced studio-quality visualization assets for high-end technical communication."
+      }
+    }
+  ],
+  skills: {
+    "Mechanical & Engineering": [
+      { name: "SolidWorks & CAD Modeling", level: "Strong", pct: 85 },
+      { name: "Mechanical Design & Kinematics", level: "Working", pct: 75 },
+      { name: "Industrial Ergonomics & RULA", level: "Intermediate", pct: 65 },
+      { name: "Manufacturing Processes", level: "Working", pct: 70 }
+    ],
+    "Design & Visualization": [
+      { name: "Blender 3D Modeling & Rendering", level: "Strong", pct: 90 },
+      { name: "Automotive Form & Surfacing", level: "Intermediate", pct: 65 },
+      { name: "Product Design Fundamentals", level: "Working", pct: 75 },
+      { name: "Presentation & Visual Communication", level: "Strong", pct: 90 }
+    ],
+    "Computational & AI Tools": [
+      { name: "Prompt Engineering & GenAI Workflows", level: "Strong", pct: 88 },
+      { name: "MATLAB & Technical Calculation", level: "Intermediate", pct: 60 },
+      { name: "Python Programming", level: "Basic", pct: 45 }
+    ]
+  },
+  certifications: [
+    { title: "Siemens CAD & Manufacturing Essentials", issuer: "Siemens", year: "2026" },
+    { title: "MATLAB Onramp & Technical Computing", issuer: "MATLAB / MathWorks", year: "2026" },
+    { title: "Simulink System Modeling", issuer: "Simulink", year: "2026" },
+    { title: "Prompt Engineering for Engineering AI", issuer: "Google AI", year: "2026" },
+    { title: "POWER BI", issuer: "Microsoft", year: "2026" },
+    { title: "Data Analyst", issuer: "Microsoft", year: "2026" },
+    { title: "Oracle foundation", issuer: "Oracle", year: "2026" },
+    { title: "Prompt engineering", issuer: "IBM", year: "2026" },
+  ],
+  timeline: [
+    {
+      role: "PLAB Collaborative Engineering Project",
+      org: "PLAB Laboratory",
+      period: "2025 — Present",
+      desc: "Engaged in collaborative mechanical design optimization, structural FEA modeling, and rapid CAD prototyping for modular hardware systems."
+    },
+    {
+      role: "World Robotics Championship Participant",
+      org: "Technoxian — New Delhi",
+      period: "2025",
+      desc: "Represented engineering delegation in competitive multidisciplinary robotics design, integrating hardware assembly, stress analysis, and rapid chassis design."
+    },
+    {
+      role: "Western Railway Industrial Internship",
+      org: "Western Railway Workshop",
+      period: "2026",
+      desc: "Gained direct practical training in heavy mechanical equipment overhaul, locomotive braking systems, manufacturing tolerances, and industrial maintenance protocols."
+    },
+    {
+      role: "B.Tech in Mechanical Engineering",
+      org: "Ujjain Engineering College",
+      period: "2024 — 2028",
+      desc: "Core academic focus on thermodynamics, mechanical machine design, CAD/CAM, engineering metrology, and industrial engineering methods."
+    }
+  ],
+  contact: {
+    email: "ananyachouhan152007@gmail.com",
+    linkedin: "https://www.linkedin.com/in/ananya-chouhan-16907b345",
+    github: "https://github.com"
+  }
+};
+
+// 1. ADVANCED INTERACTIVE CANVAS (PARALLAX GRID + FLOATING PARTICLES + MULTI-GLOW LERP)
+const canvas = document.getElementById('bg-canvas');
+const ctx = canvas.getContext('2d');
+
+let width, height;
+const mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
+
+function resizeCanvas() {
+  width = canvas.width = window.innerWidth;
+  height = canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+mouse.x = mouse.targetX = width / 2;
+mouse.y = mouse.targetY = height / 2;
+
+window.addEventListener('mousemove', (e) => {
+  mouse.targetX = e.clientX;
+  mouse.targetY = e.clientY;
+});
+
+// Floating Particles Array Creation
+const PARTICLE_COUNT = 55;
+const particles = [];
+
+for (let i = 0; i < PARTICLE_COUNT; i++) {
+  particles.push({
+    x: Math.random() * width,
+    y: Math.random() * height,
+    size: Math.random() * 2 + 0.5,
+    speedX: (Math.random() - 0.5) * 0.4,
+    speedY: (Math.random() - 0.5) * 0.4,
+    depth: Math.random() * 0.8 + 0.2, // 3D depth layer factor
+    alpha: Math.random() * 0.5 + 0.2,
+    color: Math.random() > 0.5 ? '255, 94, 98' : '255, 190, 92'
+  });
+}
+
+let gridOffset = 0;
+
+function animateCanvas() {
+  // Smooth Mouse LERP
+  mouse.x += (mouse.targetX - mouse.x) * 0.05;
+  mouse.y += (mouse.targetY - mouse.y) * 0.05;
+
+  ctx.clearRect(0, 0, width, height);
+
+  const centerX = width / 2;
+  const centerY = height / 2;
+  const parallaxX = (mouse.x - centerX) / centerX;
+  const parallaxY = (mouse.y - centerY) / centerY;
+
+  // --- LAYER 1: Deep Parallax CAD Grid ---
+  ctx.lineWidth = 1;
+  const gridSize = 50;
+  gridOffset = (gridOffset + 0.2) % gridSize;
+
+  const shiftX = parallaxX * -20;
+  const shiftY = parallaxY * -20 + gridOffset;
+
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.025)';
+  for (let x = shiftX % gridSize; x < width; x += gridSize) {
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, height);
+    ctx.stroke();
+  }
+  for (let y = shiftY % gridSize; y < height; y += gridSize) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(width, y);
+    ctx.stroke();
+  }
+
+  // --- LAYER 2: Floating Particles with Parallax ---
+  particles.forEach(p => {
+    const pShiftX = parallaxX * (p.depth * 35);
+    const pShiftY = parallaxY * (p.depth * 35);
+
+    p.x += p.speedX;
+    p.y += p.speedY;
+
+    if (p.x < 0) p.x = width;
+    if (p.x > width) p.x = 0;
+    if (p.y < 0) p.y = height;
+    if (p.y > height) p.y = 0;
+
+    const renderX = p.x + pShiftX;
+    const renderY = p.y + pShiftY;
+
+    ctx.beginPath();
+    ctx.arc(renderX, renderY, p.size * p.depth, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(${p.color}, ${p.alpha * p.depth})`;
+    ctx.shadowBlur = p.depth * 8;
+    ctx.shadowColor = `rgba(${p.color}, 0.6)`;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+  });
+
+  // --- LAYER 3: Dual Multi-Layered Radial Glow ---
+  // Outer Ambient Halo
+  const outerGlow = ctx.createRadialGradient(
+    mouse.x, mouse.y, 20,
+    mouse.x, mouse.y, 420
+  );
+  outerGlow.addColorStop(0, 'rgba(123, 97, 255, 0.12)');
+  outerGlow.addColorStop(0.5, 'rgba(255, 190, 92, 0.04)');
+  outerGlow.addColorStop(1, 'transparent');
+
+  ctx.fillStyle = outerGlow;
+  ctx.fillRect(0, 0, width, height);
+
+  // Inner Engineering Core Glow
+  const innerGlow = ctx.createRadialGradient(
+    mouse.x, mouse.y, 0,
+    mouse.x, mouse.y, 180
+  );
+  innerGlow.addColorStop(0, 'rgba(255, 42, 84, 0.18)');
+  innerGlow.addColorStop(0.6, 'rgba(255, 94, 98, 0.03)');
+  innerGlow.addColorStop(1, 'transparent');
+
+  ctx.fillStyle = innerGlow;
+  ctx.fillRect(0, 0, width, height);
+
+  requestAnimationFrame(animateCanvas);
+}
+animateCanvas();
+
+// 2. CURSOR FOLLOW
+const cursorDot = document.getElementById('cursor-dot');
+const cursorRing = document.getElementById('cursor-ring');
+
+window.addEventListener('mousemove', (e) => {
+  cursorDot.style.left = e.clientX + 'px';
+  cursorDot.style.top = e.clientY + 'px';
+  cursorRing.style.left = e.clientX + 'px';
+  cursorRing.style.top = e.clientY + 'px';
+});
+
+document.addEventListener('mouseover', (e) => {
+  if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON' || e.target.closest('.project-card') || e.target.closest('.philosophy-card')) {
+    document.body.classList.add('hovering');
+  } else {
+    document.body.classList.remove('hovering');
+  }
+});
+
+// 3. LOADER
+let loadPercent = 0;
+const loaderFill = document.getElementById('loader-fill');
+const loaderInterval = setInterval(() => {
+  loadPercent += Math.floor(Math.random() * 20) + 10;
+  if (loadPercent >= 100) {
+    loadPercent = 100;
+    clearInterval(loaderInterval);
+    setTimeout(() => {
+      const loader = document.getElementById('loader');
+      loader.style.opacity = '0';
+      loader.style.visibility = 'hidden';
+      initGSAPAnimations();
+    }, 400);
+  }
+  loaderFill.style.width = loadPercent + '%';
+}, 80);
+
+// 4. DYNAMIC CONTENT RENDERING
+document.getElementById('hero-eyebrow').textContent = CONFIG.eyebrow;
+document.getElementById('hero-name').textContent = CONFIG.name;
+document.getElementById('hero-sub').textContent = CONFIG.heroSub;
+document.getElementById('footer-name').textContent = CONFIG.name + " — Portfolio 2026";
+document.getElementById('positioning-text').textContent = CONFIG.positioning.text;
+
+// Render Projects
+const projectGrid = document.getElementById('project-grid');
+CONFIG.projects.forEach(project => {
+  const card = document.createElement('article');
+  card.className = 'project-card';
+  card.innerHTML = `
+    <div class="project-image">
+      <span class="project-badge ${project.type === 'engineering' ? 'badge-engineering' : 'badge-concept'}">
+        ${project.type === 'engineering' ? 'Mechanical System' : 'Concept / 3D'}
+      </span>
+      <img src="${project.image}" alt="${project.title}">
+    </div>
+    <div class="project-body">
+      <p class="project-category">${project.category}</p>
+      <h3 class="project-title">${project.title}</h3>
+      <p class="project-desc">${project.description}</p>
+      <div class="project-tags">
+        ${project.tags.map(t => `<span class="project-tag">${t}</span>`).join('')}
+      </div>
+      <div class="project-result">Key Result — ${project.result}</div>
+      <button class="project-case-btn" onclick="openModal('${project.id}')">View Full Case Study →</button>
+    </div>
+  `;
+  projectGrid.appendChild(card);
+});
+
+// Render Skills
+const skillsGrid = document.getElementById('skills-grid');
+Object.keys(CONFIG.skills).forEach(category => {
+  const col = document.createElement('div');
+  col.className = 'skills-col';
+  let skillItems = CONFIG.skills[category].map(s => {
+    let lvlClass = 'lvl-' + s.level.toLowerCase();
+    return `
+      <div class="skill-item">
+        <div class="skill-info">
+          <span class="skill-name">${s.name}</span>
+          <span class="skill-badge ${lvlClass}">${s.level}</span>
+        </div>
+        <div class="skill-bar">
+          <div class="skill-fill" style="width: ${s.pct}%;"></div>
+        </div>
+      </div>
+    `;
+  }).join('');
+  col.innerHTML = `<h3>${category}</h3>${skillItems}`;
+  skillsGrid.appendChild(col);
+});
+
+// Render Certifications
+const certTrack = document.getElementById('cert-track');
+[...CONFIG.certifications, ...CONFIG.certifications].forEach(cert => {
+  const card = document.createElement('div');
+  card.className = 'cert-card';
+  card.innerHTML = `
+    <div class="cert-issuer">${cert.issuer}</div>
+    <div class="cert-title">${cert.title}</div>
+    <div class="cert-year">${cert.year} — Verified Credentials</div>
+  `;
+  certTrack.appendChild(card);
+});
+
+// Render Timeline
+const expTimeline = document.getElementById('experience-timeline');
+CONFIG.timeline.forEach(item => {
+  const el = document.createElement('div');
+  el.className = 'timeline-item';
+  el.innerHTML = `
+    <div class="timeline-dot"></div>
+    <div class="timeline-role">${item.role}</div>
+    <div class="timeline-org">${item.org}</div>
+    <div class="timeline-time">${item.period}</div>
+    <div class="timeline-desc">${item.desc}</div>
+  `;
+  expTimeline.appendChild(el);
+});
+
+// Render Contact
+document.getElementById('contact-links').innerHTML = `
+  <a href="mailto:${CONFIG.contact.email}" class="btn btn-primary">Email Me Directly</a>
+  <a href="${CONFIG.contact.linkedin}" target="_blank" class="btn btn-ghost">LinkedIn ↗</a>
+  <a href="${CONFIG.contact.github}" target="_blank" class="btn btn-ghost">GitHub ↗</a>
+`;
+
+// 5. GSAP ANIMATIONS
+function initGSAPAnimations() {
+  gsap.registerPlugin(ScrollTrigger);
+  
+  gsap.from(".hero-title", { opacity: 0, y: 30, duration: 1, ease: "power3.out" });
+  gsap.from(".hero-sub", { opacity: 0, y: 20, duration: 1, delay: 0.2, ease: "power3.out" });
+  gsap.from(".hero-cta", { opacity: 0, y: 20, duration: 1, delay: 0.4, ease: "power3.out" });
+  gsap.from(".profile-frame", { opacity: 0, scale: 0.95, duration: 1.2, delay: 0.3, ease: "power3.out" });
+
+  gsap.utils.toArray(".section").forEach(sec => {
+    gsap.from(sec, {
+      opacity: 0, y: 40, duration: 1,
+      scrollTrigger: { trigger: sec, start: "top 80%" }
+    });
+  });
+}
+
+// 6. MODAL SYSTEM
+const modalOverlay = document.getElementById('modal-overlay');
+function openModal(id) {
+  const proj = CONFIG.projects.find(p => p.id === id);
+  if (!proj || !proj.caseStudy) return;
+
+  document.getElementById('modal-title').textContent = proj.title;
+  document.getElementById('modal-sub').textContent = proj.category;
+  document.getElementById('modal-problem').textContent = proj.caseStudy.problem;
+  document.getElementById('modal-research').textContent = proj.caseStudy.research;
+  document.getElementById('modal-process').textContent = proj.caseStudy.process;
+  document.getElementById('modal-result').textContent = proj.caseStudy.result;
+
+  modalOverlay.classList.add('open');
+}
+document.getElementById('modal-close').addEventListener('click', () => modalOverlay.classList.remove('open'));
+modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) modalOverlay.classList.remove('open'); });
+</script>
+</body>
+</html>
