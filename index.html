@@ -521,6 +521,122 @@
     .positioning-grid, .project-grid, .skills-columns { grid-template-columns: 1fr; }
     .resume-box { flex-direction: column; text-align: center; }
   }
+
+  /* ==========================================
+   MOBILE & TABLET RESPONSIVE CSS
+   ========================================== */
+
+/* Tablet & Smaller Screens (Under 1024px) */
+@media screen and (max-width: 1024px) {
+  .hero {
+    grid-template-columns: 1fr;
+    gap: 40px;
+    text-align: center;
+    padding: 120px 5% 60px;
+  }
+  
+  .hero-content {
+    margin: 0 auto;
+  }
+
+  .eyebrow {
+    justify-content: center;
+  }
+
+  .hero-sub {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .hero-cta {
+    justify-content: center;
+  }
+
+  .positioning-grid, 
+  .project-grid, 
+  .skills-columns {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .resume-box {
+    flex-direction: column;
+    text-align: center;
+    padding: 32px;
+  }
+}
+
+/* Mobile Devices (Under 768px) */
+@media screen and (max-width: 768px) {
+  /* Hide custom cursor on touch devices */
+  #cursor-dot, #cursor-ring {
+    display: none !important;
+  }
+  body {
+    cursor: auto !important;
+  }
+
+  /* Navigation Adjustment */
+  .nav-wrap {
+    width: 95%;
+    top: 12px;
+  }
+  
+  .nav {
+    padding: 10px 16px;
+  }
+
+  .nav-links {
+    gap: 12px;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-bottom: 4px;
+  }
+
+  .nav-links a {
+    font-size: 10px;
+  }
+
+  /* Typography Scale for Small Screens */
+  .hero-title {
+    font-size: 2.5rem;
+  }
+
+  .section-heading {
+    font-size: 1.8rem;
+  }
+
+  .section {
+    padding: 80px 5%;
+  }
+
+  /* Profile Frame & Canvas Scaling */
+  .profile-frame {
+    max-width: 280px;
+    margin: 0 auto;
+  }
+
+  .orbit:nth-child(1) { width: 280px; height: 280px; }
+  .orbit:nth-child(2) { width: 340px; height: 340px; }
+
+  /* Project Cards & Contact Box */
+  .project-body {
+    padding: 24px;
+  }
+
+  .contact-box {
+    padding: 36px 20px;
+  }
+
+  .modal-box {
+    padding: 28px 20px;
+  }
+
+  .btn {
+    width: 100%;
+    padding: 14px 20px;
+  }
+}
 </style>
 </head>
 <body>
@@ -788,6 +904,49 @@ const CONFIG = {
         process: "Constructed custom node-based procedural shaders in Blender and keyframed complex mechanical gear interactions.",
         result: "Produced studio-quality visualization assets for high-end technical communication."
       }
+    },
+    {
+      id: "muse",
+      title: "Muse",
+      category: "Live Video Chat / Digital Camera Product",
+      type: "concept",
+      image: "musecam.jpeg",
+      description: "A live video chat product currently being developed toward public deployment and Play Store release.",
+      tags: ["Live Video","Web App","Product Development","In Progress"],
+      result: "Currently in development",
+      caseStudy: {
+        problem: "Creating a focused digital experience around live video communication.",
+        research: "Exploring the product experience and interaction flow required for a dedicated live video communication platform.",
+        process: "Developing the product toward live deployment while refining its digital experience and functionality.",
+        result: "Muse is currently being prepared for live deployment and a future Play Store release."
+      }
+    },
+    {
+      id: "cipher",
+      title: "Cipher",
+      category: "Web Project / Digital Experience",
+      type: "concept",
+      image: "cipher.jpeg",
+      description: "A standalone web project developed as an independent digital experience with its own interface and identity.",
+      tags: ["Web Design","Frontend","UI","Digital Experience"],
+      result: "Live Web Project",
+      link: "https://ayingotnochill-2115.github.io/cipher/",
+      caseStudy: {
+        problem: "Creating a dedicated web presence for Cipher as an independent digital experience.",
+        research: "Exploring interface structure, visual identity and the overall experience of a standalone web project.",
+        process: "Designed and developed Cipher as its own webpage rather than keeping it limited to the portfolio.",
+        result: "Cipher is live and accessible as an independent web project."
+      }
+    },
+    {
+      id: "graphic-design",
+      title: "Graphic Design",
+      category: "Visual Design / Creative Work",
+      type: "concept",
+      image: "graphic-design.jpeg",
+      description: "An evolving collection of graphic design work exploring visual composition, digital layouts, branding and creative communication.",
+      tags: ["Figma","Canva","Visual Design","Branding","Creative Work"],
+      result: "Ongoing design work"
     }
   ],
   skills: {
@@ -895,8 +1054,8 @@ let gridOffset = 0;
 
 function animateCanvas() {
   // Smooth Mouse LERP
-  mouse.x += (mouse.targetX - mouse.x) * 0.05;
-  mouse.y += (mouse.targetY - mouse.y) * 0.05;
+  mouse.x += (mouse.targetX - mouse.x) * 0.85;
+  mouse.y += (mouse.targetY - mouse.y) * 0.85;
 
   ctx.clearRect(0, 0, width, height);
 
